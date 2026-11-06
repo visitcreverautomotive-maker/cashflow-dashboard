@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>แดชบอร์ดกระแสเงินสด ปีงบประมาณ 2569</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--bg:#f2f4f7;--card:#fff;--text:#15202e;--muted:#5b6778;--line:#dfe4ea;--good:#0b7a6e;--bad:#c4410c;--acc:#1f4fbf;--plan:#8793a5;--warn:#fff4ec;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d131b;--card:#151e29;--text:#e7ecf3;--muted:#9aa7b9;--line:#263344;--good:#2dd4bf;--bad:#fb9150;--acc:#7ea6ff;--plan:#7a869b;--warn:#2a1d15;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0d131b;--card:#151e29;--text:#e7ecf3;--muted:#9aa7b9;--line:#263344;--good:#2dd4bf;--bad:#fb9150;--acc:#7ea6ff;--plan:#7a869b;--warn:#2a1d15;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:'Noto Sans Thai','Sarabun',system-ui,sans-serif;line-height:1.55}
+.wrap{max-width:1120px;margin:0 auto;padding:24px 16px 40px}
+h1{font-size:1.6rem;margin:0 0 4px;font-weight:700}
+h2{font-size:1.05rem;margin:0 0 10px;font-weight:600}
+.sub{margin:0 0 18px;color:var(--muted);font-size:.9rem}
+.msg{background:var(--warn);border-left:4px solid var(--bad);padding:12px 16px;border-radius:4px;margin-bottom:16px;font-weight:600}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:16px;margin-bottom:16px;min-width:0}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));background:var(--card);border:1px solid var(--line);border-radius:6px;margin-bottom:16px}
+.kpi{padding:16px;border-left:1px solid var(--line)}
+.kpi:first-child{border-left:0}
+.kl{font-size:.85rem;color:var(--muted)}
+.kv{font-size:1.9rem;font-weight:700;line-height:1.2;margin:2px 0}
+.kv small{font-size:.85rem;font-weight:400;color:var(--muted)}
+.ks{font-size:.82rem;color:var(--muted)}
+.good{color:var(--good)}.bad{color:var(--bad)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px}
+.grid .panel{margin-bottom:0}
+.ch{position:relative;height:290px}
+.ctl{display:flex;align-items:center;gap:10px;margin:8px 0 12px;font-size:.9rem}
+select{font:inherit;padding:6px 10px;border:1px solid var(--line);border-radius:4px;background:var(--card);color:var(--text)}
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.88rem;min-width:420px}
+th,td{padding:6px 8px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--muted);font-weight:600}
+tr.g td{font-weight:600;background:var(--bg)}
+tr.t td{font-weight:700}
+ul{margin:0;padding-left:1.1rem}
+li{margin-bottom:9px}
+.note{color:var(--muted);font-size:.8rem;margin-top:16px}
+</style>
+</head>
+<body>
+<main class="wrap">
+<h1>กระแสเงินสด ปีงบประมาณ 2569</h1>
+<p class="sub">ต.ค. 2568 – ส.ค. 2569 (11 เดือน), หมวดเงินกิจการทั่วไป, หน่วยล้านบาท, ข้อมูลจำลองเพื่อการอบรม</p>
+<div class="msg">สภาพคล่องมั่นคง แต่เงินสดต่ำกว่าแผน 23.2 ล้านบาท สาเหตุหลักคือเงินอุดหนุนจากรัฐ และเงินเดือนที่เกินแผนตั้งแต่ เม.ย.</div>
+<section class="kpis" id="kpis"></section>
+<section class="panel"><h2>เงินสดคงเหลือสะสม จริงเทียบแผน</h2><div class="ch"><canvas id="cashEl"></canvas></div></section>
+<section class="panel">
+<h2>ผลต่างจากแผนรายหมวด</h2>
+<div class="ctl"><label for="per">ช่วงเวลา</label><select id="per"><option value="0,11">ทั้งปี (ต.ค.–ส.ค.)</option><option value="0,6">ครึ่งแรก (ต.ค.–มี.ค.)</option><option value="6,11">ครึ่งหลัง (เม.ย.–ส.ค.)</option></select></div>
+<div class="grid">
+<div><div class="ch"><canvas id="varEl"></canvas></div><p class="note">แท่งขวาคือดีต่อเงินสด แท่งซ้ายคือแย่กว่าแผน (รายรับต่ำกว่าแผน หรือรายจ่ายสูงกว่าแผน)</p></div>
+<div class="tw"><table id="tbl"></table></div>
+</div>
+</section>
+<div class="grid">
+<section class="panel"><h2>เงินเดือนและค่าจ้าง จริงเทียบแผนรายเดือน</h2><div class="ch"><canvas id="salEl"></canvas></div><p class="note">แท่งสีส้มคือเดือนที่เกินแผน</p></section>
+<section class="panel"><h2>ประเด็นสำหรับผู้บริหาร</h2>
+<ul>
+<li><b>สภาพคล่องมั่นคง</b> เงินสด 464.3 ล้านบาท เพิ่มจากยอดยกมา 44.3 ล้านบาท รองรับรายจ่ายราว 4 เดือน</li>
+<li><b>ช่องว่างจากแผนอยู่ที่รายรับ</b> เงินอุดหนุนจากรัฐต่ำกว่าแผน 24.7 ล้านบาทใน 8 จาก 11 เดือน และเป็น 89% ของรายรับทั้งหมด</li>
+<li><b>ครึ่งหลังโมเมนตัมเปลี่ยน</b> ต.ค.–มี.ค. กระแสเงินสดสุทธิ +49.3 ล้านบาท แต่ เม.ย.–ส.ค. อยู่ที่ −5.0 ล้านบาท เพราะเงินเดือนเกินแผน 11.1 ล้านบาท (แผน 72 ล้านบาทคงที่ ยอดจริงราว 75 ล้านบาท)</li>
+<li><b>ต้องถามต่อฝ่ายการเงิน</b> เงินอุดหนุนที่ขาดเป็นเรื่องจังหวะเบิกจ่ายหรือถูกปรับลดจริง และเงินเดือนที่เกินมาจากการปรับฐาน การรับคนเพิ่ม หรือค่าล่วงเวลา</li>
+</ul></section>
+</div>
+<p class="note">เงินสดคงเหลือคำนวณจากยอดยกมา 420.0 ล้านบาท บวกกระแสเงินสดสุทธิสะสมรายเดือน ข้อมูลยังไม่รวมเดือน ก.ย. 2569</p>
+</main>
+<script>
+const D={"months":["2025-10","2025-11","2025-12","2026-01","2026-02","2026-03","2026-04","2026-05","2026-06","2026-07","2026-08"],"cats":[{"n":"เงินอุดหนุนจากรัฐ","t":"in","a":[111.071,106.203,108.731,108.406,103.525,112.012,103.822,105.252,107.856,106.7,111.756],"p":[110.0,110.0,110.0,110.0,110.0,110.0,110.0,110.0,110.0,110.0,110.0]},{"n":"รายได้จากทรัพย์สิน","t":"in","a":[5.78,6.339,5.79,5.945,6.046,5.982,5.889,5.769,5.689,5.787,6.257],"p":[6.0,6.0,6.0,6.0,6.0,6.0,6.0,6.0,6.0,6.0,6.0]},{"n":"เงินบริจาค","t":"in","a":[2.64,2.371,8.925,2.471,2.396,2.5,2.634,2.588,2.515,2.384,2.488],"p":[2.5,2.5,9.0,2.5,2.5,2.5,2.5,2.5,2.5,2.5,2.5]},{"n":"ดอกผลจากการลงทุน","t":"in","a":[3.678,3.371,3.418,3.571,3.305,7.838,3.658,3.6,3.579,3.702,3.529],"p":[3.5,3.5,3.5,3.5,3.5,7.5,3.5,3.5,3.5,3.5,3.5]},{"n":"เงินเดือนและค่าจ้าง","t":"out","a":[71.716,68.448,68.637,67.736,69.242,70.37,74.925,75.391,70.707,75.465,74.629],"p":[72.0,72.0,72.0,72.0,72.0,72.0,72.0,72.0,72.0,72.0,72.0]},{"n":"สวัสดิการบุคลากร","t":"out","a":[9.177,9.291,9.349,8.961,8.531,9.4,8.588,8.942,8.522,8.805,8.718],"p":[9.0,9.0,9.0,9.0,9.0,9.0,9.0,9.0,9.0,9.0,9.0]},{"n":"ค่าสาธารณูปโภค","t":"out","a":[10.623,10.824,11.238,11.046,10.539,14.321,14.346,16.52,10.708,10.466,10.701],"p":[11.0,11.0,11.0,11.0,11.0,14.0,14.0,14.0,11.0,11.0,11.0]},{"n":"งบลงทุนครุภัณฑ์และสิ่งก่อสร้าง","t":"out","a":[11.599,11.959,12.237,11.778,12.266,12.264,12.395,11.481,12.467,12.221,12.231],"p":[12.0,12.0,12.0,12.0,12.0,12.0,12.0,12.0,12.0,12.0,12.0]},{"n":"ค่าบำรุงรักษา","t":"out","a":[4.873,4.896,5.229,4.713,5.137,4.704,5.186,5.274,4.754,5.233,6.2],"p":[5.0,5.0,5.0,5.0,5.0,5.0,5.0,5.0,5.0,5.0,5.0]},{"n":"ค่าใช้จ่ายดำเนินงานอื่น","t":"out","a":[7.162,7.115,6.912,7.172,6.885,6.651,7.245,7.323,7.367,6.59,7.03],"p":[7.0,7.0,7.0,7.0,7.0,7.0,7.0,7.0,7.0,7.0,7.0]}]};
+const $=id=>document.getElementById(id),O=420,M=D.months.length;
+const TH=['','ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+const lab=D.months.map(m=>{const[y,mo]=m.split('-');return TH[+mo]+' '+String((+y+543)%100)});
+const f=(n,d=1)=>n.toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
+const s=n=>(n>0.05?'+':n<-0.05?'−':'')+f(Math.abs(n));
+const sum=(a,i0=0,i1=M)=>a.slice(i0,i1).reduce((x,y)=>x+y,0);
+const row=(t,k)=>lab.map((_,i)=>D.cats.filter(c=>c.t===t).reduce((x,c)=>x+c[k][i],0));
+const inA=row('in','a'),inP=row('in','p'),outA=row('out','a'),outP=row('out','p');
+const cum=(i,o)=>{let c=O;return i.map((v,k)=>(c+=v-o[k]))};
+const cashA=cum(inA,outA),cashP=cum(inP,outP),L=M-1;
+const sub=D.cats.find(c=>c.n==='เงินอุดหนุนจากรัฐ'),sal=D.cats.find(c=>c.n==='เงินเดือนและค่าจ้าง');
+const net=(i0,i1)=>sum(inA,i0,i1)-sum(outA,i0,i1);
+const gap=cashA[L]-cashP[L],cover=cashA[L]/(sum(outA)/M),subV=sum(sub.a)-sum(sub.p);
+const K=[
+['เงินสดคงเหลือ ณ ส.ค. 69',f(cashA[L]),'ล้านบาท',s(cashA[L]-O)+' จากยอดยกมา '+f(O),''],
+['เทียบแผน',s(gap),'ล้านบาท','แผน '+f(cashP[L]),gap<0?'bad':'good'],
+['สุทธิ เม.ย.–ส.ค. 69',s(net(6,M)),'ล้านบาท','ต.ค.–มี.ค. '+s(net(0,6)),net(6,M)<0?'bad':'good'],
+['เงินสดครอบคลุมรายจ่าย',f(cover),'เดือน','รายจ่ายเฉลี่ย '+f(sum(outA)/M)+' ล้านบาท/เดือน',''],
+['เงินอุดหนุนรัฐ ต่อรายรับรวม',f(sum(sub.a)/sum(inA)*100,0),'%','ต่ำกว่าแผน '+s(subV)+' ล้านบาท',subV<0?'bad':'good']];
+$('kpis').innerHTML=K.map(k=>`<div class="kpi"><div class="kl">${k[0]}</div><div class="kv ${k[4]}">${k[1]} <small>${k[2]}</small></div><div class="ks">${k[3]}</div></div>`).join('');
+const short=n=>n.replace('งบลงทุนครุภัณฑ์และสิ่งก่อสร้าง','งบลงทุน').replace('ค่าใช้จ่ายดำเนินงานอื่น','ดำเนินงานอื่น');
+const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+let ch=[];
+function table(rows,i0,i1){
+ const mk=(n,a,p,imp)=>({n,a,p,v:a-p,imp});
+ const tr=(r,c='')=>`<tr class="${c}"><td>${r.n}</td><td>${f(r.a)}</td><td>${f(r.p)}</td><td class="${r.imp<0?'bad':'good'}">${s(r.v)}</td><td class="${r.imp<0?'bad':'good'}">${s(r.v/r.p*100)}%</td></tr>`;
+ const iA=sum(inA,i0,i1),iP=sum(inP,i0,i1),oA=sum(outA,i0,i1),oP=sum(outP,i0,i1);
+ return '<tr><th>หมวด</th><th>จริง</th><th>แผน</th><th>ผลต่าง</th><th>%</th></tr><tr class="g"><td colspan="5">รายรับ</td></tr>'+
+ rows.filter(r=>r.t==='in').map(r=>tr(r)).join('')+tr(mk('รวมรายรับ',iA,iP,iA-iP),'t')+
+ '<tr class="g"><td colspan="5">รายจ่าย</td></tr>'+rows.filter(r=>r.t==='out').map(r=>tr(r)).join('')+tr(mk('รวมรายจ่าย',oA,oP,oP-oA),'t')+
+ tr(mk('กระแสเงินสดสุทธิ',iA-oA,iP-oP,(iA-oA)-(iP-oP)),'t');
+}
+function draw(){
+ ch.forEach(c=>c.destroy());ch=[];
+ const [i0,i1]=$('per').value.split(',').map(Number);
+ const acc=css('--acc'),pl=css('--plan'),gd=css('--good'),bd=css('--bad'),grid={color:css('--line')};
+ Chart.defaults.font.family="'Noto Sans Thai',system-ui,sans-serif";Chart.defaults.color=css('--muted');
+ const base={responsive:true,maintainAspectRatio:false};
+ const tip=c=>`${c.dataset.label}: ${f(c.parsed.y??c.parsed.x)}`;
+ ch.push(new Chart($('cashEl'),{type:'line',data:{labels:lab,datasets:[
+  {label:'เงินสดจริง',data:cashA,borderColor:acc,backgroundColor:acc,tension:.25,pointRadius:3},
+  {label:'เงินสดตามแผน',data:cashP,borderColor:pl,backgroundColor:pl,borderDash:[6,4],pointRadius:0,tension:.25}]},
+  options:{...base,scales:{x:{grid:{display:false}},y:{grid,min:410,title:{display:true,text:'ล้านบาท'}}},plugins:{legend:{position:'bottom'},tooltip:{callbacks:{label:tip}}}}}));
+ const rows=D.cats.map(c=>{const a=sum(c.a,i0,i1),p=sum(c.p,i0,i1);return{n:c.n,t:c.t,a,p,v:a-p,imp:c.t==='in'?a-p:p-a}});
+ const vs=[...rows].sort((x,y)=>x.imp-y.imp);
+ ch.push(new Chart($('varEl'),{type:'bar',data:{labels:vs.map(r=>short(r.n)),datasets:[{label:'ผลต่อเงินสดเทียบแผน',data:vs.map(r=>+r.imp.toFixed(2)),backgroundColor:vs.map(r=>r.imp<0?bd:gd)}]},
+  options:{...base,indexAxis:'y',scales:{x:{grid,title:{display:true,text:'ล้านบาท'}},y:{grid:{display:false}}},plugins:{legend:{display:false},tooltip:{callbacks:{label:tip}}}}}));
+ $('tbl').innerHTML=table(rows,i0,i1);
+ ch.push(new Chart($('salEl'),{data:{labels:lab,datasets:[
+  {type:'bar',label:'เงินเดือนจริง',data:sal.a,backgroundColor:sal.a.map((v,i)=>v>sal.p[i]?bd:acc)},
+  {type:'line',label:'แผน',data:sal.p,borderColor:pl,borderDash:[6,4],pointRadius:0}]},
+  options:{...base,scales:{x:{grid:{display:false}},y:{grid,min:60,title:{display:true,text:'ล้านบาท'}}},plugins:{legend:{position:'bottom'},tooltip:{callbacks:{label:tip}}}}}));
+}
+$('per').addEventListener('change',draw);
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',draw);
+draw();
+</script>
+</body>
+</html>
